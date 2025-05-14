@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Movies List</title>
+</head>
+<body>
+<h1>Movies List</h1>
+
+    {% for movie in movies %}
+    <img height="200" alt="{{ movie.name }}" src="{{ movie.poster }}">
+    <ul>
+        <li><a href="/movies/{{ movie.id }}">{{ movie.name }} ({{ movie.year }})</a></li>
+        <form action="/movies" method="post">
+        <button type="submit" name = "movie_id" value ="{{ movie.id }}">
+        Delete</button></form>
+    </ul>
+    {% endfor %}
+    <a href="/">Home</a>
+    <a href="/users">Users</a>
+    <a href="/movies/new">Add Movie</a>
+    <a href="/users/new">Add User</a>
+
+</body>
+</html>

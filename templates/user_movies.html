@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>{{user.name}} - Movie List</title>
+</head>
+<body>
+    <h1>{{user.name}} - Movie List</h1>
+
+    <header>
+        {% if success == True %}
+            <p>Movie added successfully!</p>
+        {% elif success == False %}
+            <p>Failed to add movie. Please try again.</p>
+        {% elif success == None %}
+        {% endif %}
+        <form action="/users/{{user.id}}" method="POST">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" required>
+            <button type="submit">Add Movie</button>
+        </form>
+    </header>
+        {% for movie in user_movies %}
+            <img height="200" alt="{{ movie.name }}" src="{{ movie.poster }}">
+            <ul><li>{{ movie.name }} ({{ movie.year }})</li>
+            <li>Director: {{ movie.director }}</li>
+            <li>Rating: <input type="number" id="rating" name="rating" required> {{ movie.rating }} <form action="/users/{{user.id}}/{{movie.id}}"
+                                                 method="UPDATE"><button type="submit">Update
+            </button></form></li>
+            <hr>
+                </ul>
+        {% endfor %}
+
+</body>
+</html>

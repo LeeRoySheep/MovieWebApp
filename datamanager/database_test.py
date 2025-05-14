@@ -1,8 +1,7 @@
 import pytest
-from sqlalchemy.orm import sessionmaker
 
-from sqlite_data_manager import SQliteDataManager
-from data_models import Base, User, Movie
+from datamanager.sqlite_data_manager import SQliteDataManager
+from data_models import User, Movie
 
 TEST_DB_URL = "sqlite:///:memory:"
 

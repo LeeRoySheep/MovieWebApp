@@ -26,7 +26,11 @@ class UserMovie(Base):
     user_rating = Column('user_rating', Float, default=0.0 )# Add the rating column here
 
     def __repr__(self):
-        return f"<UserMovie(user_id={self.user_id}, movie_id={self.movie_id}, rating={self.rating})>"
+        result = ""
+        for user in session.query(User).all():
+            result += (f"<UserMovie(user_id={self.user_id}, movie_id={self.movie_id}, "
+                       f"rating={self.rating})>\n")
+        return result
 
 # Define the User model
 class User(Base):

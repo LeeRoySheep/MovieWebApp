@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new Movie</title>
+</head>
+<body>
+    <h1>Add new Movie</h1>
+    {% if success == True %}
+        <p>Movie added successfully!</p>
+    {% elif success == False %}
+        <p>Failed to add movie. Please try again.</p>
+    {% elif success == None %}
+    {% endif %}
+    <form action="/movies/new" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Add Movie</button>
+    </form>
+    <a href="/">Home</a>
+    <a href="/users">Users</a>
+    <a href="/movies">Movies</a>
+</body>
+</html>

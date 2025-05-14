@@ -1,0 +1,24 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add new User</title>
+</head>
+<body>
+    <h1>Add new User</h1>
+    {% if success == True %}
+        <p>User added successfully!</p>
+    {% elif success == False %}
+        <p>Failed to add user. Please try again.</p>
+    {% elif success == None %}
+    {% endif %}
+    <form action="/users/new" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Add User</button>
+    </form>
+    <a href="/">Home</a>
+    <a href="/users">Users</a>
+    <a href="/movies">Movies</a>
+</body>
+</html>

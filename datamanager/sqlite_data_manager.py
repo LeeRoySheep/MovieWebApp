@@ -4,7 +4,8 @@ from sqlalchemy.orm import sessionmaker, joinedload, Session
 from contextlib import contextmanager
 from typing import List, Dict, Any
 from data_models import Base, User, Movie, UserMovie
-from data_manager_interface import DataManagerInterface
+from movie_api import OMDBClient
+from datamanager.data_manager_interface import DataManagerInterface
 
 
 # Define the database connection string.
@@ -43,8 +44,20 @@ class SQliteDataManager(DataManagerInterface):
         Getter for users.
         Returns: a list of User objects.
         """
-        with self.get_db() as db:
-            return db.query(User).all()
+        with self.SessionFactory() as session:
+            users = session.query(User).all()
+            return users
+
+
+    def get_user(self, user_id: int) -> User:
+        """
+        Get a user by ID.
+        :param user_id:
+        :return: User
+        """
+        with self.SessionFactory() as session:
+            user = session.query(User).filter_by(id=user_id).first()
+            return user
 
     def add_user(self, user: User) -> None:
         """
@@ -60,7 +73,7 @@ class SQliteDataManager(DataManagerInterface):
         Getter for movies.
         Returns: a list of Movie objects
         """
-        with self.get_db() as db:
+        with self.SessionFactory() as db:
             return db.query(Movie).options(joinedload(Movie.users)).all()
 
     def set_user_movies(self, user_id: int, movie_id: int, rating: float, user_rating: float = 0.0)\
@@ -99,15 +112,25 @@ class SQliteDataManager(DataManagerInterface):
                     print(f"Added movie {movie_id} to user {user_id} with rating {rating}")
 
                 db.commit()  # Commit within the function
+
+            elif user and not movie:
+                try:
+                    self.set_movie(movie_title=movie.name)
+                    self.set_user_movies(user_id=user_id, movie_id=movie_id, rating=rating,
+                                         user_rating=user_rating)
+                except ValueError as e:
+                    print(f"Failed to add movie: {e}")
+
             else:
                 print("User or movie not found.")
 
     def get_user_movies(self, user_id: int) -> List[Dict[str, Any]]:
         """
         Get movies for a specific user with their ratings.
-        Returns: A list of dictionaries, where each dictionary contains movie details and the user's rating.
+        Returns: A list of dictionaries, where each dictionary contains movie details
+        (name, director, year, poster) and the user's rating.
         """
-        with self.get_db() as db:
+        with self.SessionFactory() as db:
             user = db.query(User).options(joinedload(User.movies)).filter_by(id=user_id).first()
             if user:
                 movies_with_ratings = []
@@ -127,13 +150,18 @@ class SQliteDataManager(DataManagerInterface):
             return []
 
 
-    def set_movie(self, movie: Movie) -> None:
+    def set_movie(self, movie_title: str) -> Movie:
         """
         Add a new movie to the database.
         """
-        with self.get_db() as db:
+        new_movie = OMDBClient().get_movie(title=movie_title)
+        if new_movie is None:
+            raise ValueError("Movie not found")
+        movie = Movie(**new_movie)
+        with self.SessionFactory() as db:
             db.add(movie)
             db.commit()
+        return movie
 
     def update_movie(self, movie_id: int, update_data: dict) -> Movie | None:
         session = self.SessionFactory()
@@ -158,8 +186,8 @@ class SQliteDataManager(DataManagerInterface):
         Returns:
             True if the movie was successfully deleted, False otherwise.
         """
-        engine = self.engine
-        with Session(engine) as db:
+
+        with self.SessionFactory() as db:
             movie = db.query(Movie).options(joinedload(Movie.users)).filter_by(id=movie_id).first()
             if movie:
                 # Remove the movie from all associated users' movie lists
@@ -171,7 +199,7 @@ class SQliteDataManager(DataManagerInterface):
             return False
 
 def main():
-    data_manager = SQliteDataManager(TEST_DB_URL)
+    data_manager = SQliteDataManager("sqlite:///movie_app.db")
 
     with data_manager.SessionFactory() as session:
         # Create some users
@@ -183,12 +211,10 @@ def main():
         session.commit()
 
         # Create some movies
-        movie1 = Movie(name="The Matrix", director="Wachowskis", year=1999, poster="matrix.jpg",
-                       rating=8.7)
-        movie2 = Movie(name="Inception", director="Nolan", year=2010, poster="inception.jpg",
-                       rating=8.8)
-        data_manager.set_movie(movie1)
-        data_manager.set_movie(movie2)
+        movie1 = Movie(name="The Matrix")
+        movie2 = Movie(name="Inception")
+        movie1 = data_manager.set_movie(movie1.name)
+        movie2 = data_manager.set_movie(movie2.name)
         session.add_all([movie1, movie2])
         session.commit()
 
@@ -221,17 +247,6 @@ def main():
             print("Deleted movie1:", deleted)
 
         print("All movies after deletion:", session.query(Movie).all())
-
-
-
-
-
-
-
-
-
-
-
 
 
 if __name__ == "__main__":
