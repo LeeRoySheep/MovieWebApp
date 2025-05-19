@@ -22,15 +22,13 @@ class UserMovie(Base):
     id = Column(Integer, primary_key=True)
     user_id = Column('user_id', Integer, ForeignKey('users.id'))
     movie_id = Column('movie_id', Integer, ForeignKey('movies.id'))
-    rating = Column(Float)
     user_rating = Column('user_rating', Float, default=0.0 )# Add the rating column here
+    users = relationship("User", back_populates="user_movies", overlaps="users,movies")
+    movies = relationship("Movie", back_populates="user_movies", overlaps="users,movies")
 
     def __repr__(self):
-        result = ""
-        for user in session.query(User).all():
-            result += (f"<UserMovie(user_id={self.user_id}, movie_id={self.movie_id}, "
-                       f"rating={self.rating})>\n")
-        return result
+        return (f"<UserMovie(user_id={self.user_id}, movie_id={self.movie_id}, "
+                f"user_rating={self.user_rating})>")
 
 # Define the User model
 class User(Base):
@@ -38,7 +36,8 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     movies = relationship("Movie", secondary="user_movies",
-                          back_populates="users")
+                          back_populates="users", overlaps="user_movies,movies")
+    user_movies = relationship("UserMovie", back_populates="users", overlaps="user_movies,movies")
 
     def __repr__(self):
         return f"<User(name='{self.name}', id={self.id if self.id else 'None'})>"
@@ -54,10 +53,12 @@ class Movie(Base):
     poster = Column(String)
     rating = Column(Float)
     users = relationship("User", secondary="user_movies",
-                         back_populates="movies")
+                         back_populates="movies", overlaps="user_movies,users")
+    user_movies = relationship("UserMovie", back_populates="movies",
+                               overlaps="user_movies,users")
 
     def __repr__(self):
-        return f"<Movie(name='{self.name}', id={self.id if self.id else 'None'})>"
+        return f"<Movie(name={self.name}, id={self.id if self.id else 'None'})>"
 
 
 if __name__ == "__main__":

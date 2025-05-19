@@ -27,15 +27,23 @@ def user_movies(user_id):
                     user=chosen_user)
     elif request.method == "POST":
         chosen_user = data_manager.get_user(user_id)
-        movie_title = request.form["movie_title"]
+        movie_title = request.form["name"]
         with data_manager.SessionFactory() as session:
             movie = session.query(Movie).filter_by(name=movie_title).first()
+            if movie is None:
+                try:
+                    movie = data_manager.set_movie(movie_title)
+                    session.add(movie)
+                    data_manager.set_user_movies(user_id=user_id, movie_id=movie.id, rating=movie.rating)
+                    session.commit()
+                    user_movies_list = data_manager.get_user_movies(user_id)
+                    return render_template("user_movies.html", user_movies=user_movies_list,
+                    user=chosen_user, success=True)
+                except Exception as e:
+                    session.rollback()
+                    return render_template("user_movies.html", user_movies=user_movies_list,
+                    user=chosen_user, success=False)
 
-        data_manager.set_user_movies(user_id, movie.id, movie.rating, movie.user_rating)
-        success = True
-        user_movies_list = data_manager.get_user_movies(user_id)
-        return render_template("user_movies.html", user_movies=user_movies_list,
-                    user=chosen_user, success=success)
 
 @app.route('/users/new', methods=["GET", "POST"])
 def new_user():
