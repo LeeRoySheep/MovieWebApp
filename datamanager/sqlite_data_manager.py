@@ -1,6 +1,6 @@
 
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker, joinedload, Session
+from sqlalchemy.orm import sessionmaker
 from contextlib import contextmanager
 from typing import List, Dict, Any, Type
 
@@ -21,7 +21,7 @@ class SQliteDataManager(DataManagerInterface):
         Initialize the data manager with a database URL.
         """
         self.engine = create_engine(db_url)
-        self.SessionFactory = sessionmaker(bind=self.engine)
+        self.SessionFactory = sessionmaker(bind=self.engine, expire_on_commit=False)
         Base.metadata.create_all(self.engine)
 
     @contextmanager
@@ -74,11 +74,11 @@ class SQliteDataManager(DataManagerInterface):
         Getter for movies.
         Returns: a list of Movie objects
         """
-        with self.SessionFactory() as db:
-            return db.query(Movie).options(joinedload(Movie.users)).all()
+        with self.SessionFactory() as session:
+            return session.query(Movie).all()
 
     def set_user_movies(self, user_id: int, movie_id: int, user_rating: float = 0.0)\
-            -> None:
+            -> str | None:
         """
         Set (add) a movie to a user's list with a rating,
         either create a new association or update the rating if it exists (self-contained session).
@@ -87,13 +87,11 @@ class SQliteDataManager(DataManagerInterface):
         with self.SessionFactory() as session:
             user = session.query(User).filter_by(id=user_id).first()
             movie = session.query(Movie).filter_by(id=movie_id).first()
-            print(f"user:{user}, movie:{movie}")
 
-            if user is not None and movie is not None:
+            if user and movie:
                 existing_associations = session.query(UserMovie).filter_by(
                     user_id=user_id, movie_id=movie_id
-                ).all()  #check if the association already exists
-                print(f"existing_associations: {existing_associations}")
+                ).first()  #check if the association already exists
                 if existing_associations:
                     #  existing association update
                     session.query(UserMovie).filter_by(user_id=user_id, movie_id=movie_id).update(
@@ -103,18 +101,16 @@ class SQliteDataManager(DataManagerInterface):
                     # create new association
                     association = UserMovie(user_id=user_id, movie_id=movie_id,
                                             user_rating=user_rating)
-                    print(f"association: {association}")
                     session.add(association)
-                    print(f"Added movie {movie_id} to user {user_id} with rating {user_rating}")
 
                 session.commit()  # Commit within the function
 
 
-            elif user is not None and movie is None:
-                print("Failed to add movie!")
+            elif movie is None:
+                return "Failed to add movie, check ID and try again!"
 
             else:
-                print("User or movie not found.")
+                return "User not found."
 
     def get_user_movies(self, user_id: int) -> List[Dict[str, Any]]:
         """
@@ -135,10 +131,28 @@ class SQliteDataManager(DataManagerInterface):
                             "director": movie.director,
                             "year": movie.year,
                             "poster": movie.poster,
-                            "user_rating": association.user_rating,
+                            "rating": movie.rating,
+                            "user_rating": association.user_rating
                         })
                 return movies_with_ratings
             return []
+
+
+    def get_user_movie(self, user_id: int, movie_id: int) -> Dict[str, Any]:
+        with self.SessionFactory() as session:
+            user_movie = session.query(UserMovie).filter_by(user_id=user_id, movie_id=movie_id).first()
+            if user_movie:
+                movie = session.query(Movie).filter_by(id=movie_id).first()
+                return {
+                    "id": movie.id,
+                    "name": movie.name,
+                    "director": movie.director,
+                    "year": movie.year,
+                    "poster": movie.poster,
+                    "rating": movie.rating,
+                    "user_rating": user_movie.user_rating,
+                }
+            return {}
 
 
     def set_movie(self, movie_title: str) -> Type[Movie] | Movie:
@@ -148,7 +162,7 @@ class SQliteDataManager(DataManagerInterface):
         """
         with self.SessionFactory() as session:
             movie = session.query(Movie).filter_by(name=movie_title).first()
-            if movie is not None:
+            if movie:
                 return movie
             new_movie = OMDBClient().get_movie(title=movie_title)
             if new_movie is None:
@@ -158,42 +172,73 @@ class SQliteDataManager(DataManagerInterface):
             session.commit()
         return movie
 
-    def update_movie(self, movie_id: int, update_data: dict) -> dict | None:
+    def update_user_movie(self, user_id: int, movie_id: int, update_data: dict) -> dict | None:
         with self.SessionFactory() as session:
             movie = session.query(Movie).filter_by(id=movie_id).first()
             if movie:
-                for key, value in update_data.items():
-                    setattr(movie, key, value)
+                session.query(UserMovie).filter_by(user_id=user_id, movie_id=movie_id).update(update_data)
                 session.commit()
                 return {
                     "id": movie.id,
                     "name": movie.name,
                     "director": movie.director,
                     "year": movie.year,
-                    "poster": movie.poster
+                    "poster": movie.poster,
+                    "user_rating": update_data["user_rating"]
                 }
             return None
 
     def delete_movie(self, movie_id: int) -> bool:
         """
-        Delete a movie and its associations.
-
-        Args:
-            movie_id: The ID of the movie to delete.
-
-        Returns:
-            True if the movie was successfully deleted, False otherwise.
+        Delete a movie from the movies table in the database
+        :param movie_id:
+        :return:
         """
-        with (self.SessionFactory() as db):
-            movie = db.query(Movie).filter_by(id = movie_id).first()
+        with self.SessionFactory() as session:
+            movie = session.query(Movie).filter_by(id = movie_id).first()
             if movie:
-                # Safely clear all associations through the association object
-                movie.user_movies.clear()
-
-                db.delete(movie)
-                db.commit()
+                session.flush()  # Make sure pending updates are flushed
+                session.query(UserMovie).filter_by(movie_id = movie_id).delete()
+                session.query(Movie).filter_by(id = movie_id).delete()
+                session.commit()
                 return True
             return False
+
+    def delete_user(self, user_id: int) -> bool:
+        """
+        Delete a user from the users table in the database
+        :param user_id:
+        :return:
+        """
+        with self.SessionFactory() as session:
+            user = session.query(User).filter_by(id = user_id).first()
+            if user:
+                session.flush()  # Make sure pending updates are flushed
+                session.query(UserMovie).filter_by(user_id = user_id).delete()
+                session.query(User).filter_by(id = user_id).delete()
+                session.commit()
+                return True
+            return False
+
+
+    def delete_user_movie(self, user_id: int, movie_id: int) -> bool:
+        with self.SessionFactory() as session:
+            association = session.query(UserMovie).filter_by(user_id=user_id, movie_id=movie_id).first()
+            if association:
+                session.delete(association)
+                session.commit()
+                return True
+            return False
+
+    def get_movie(self, movie_id: int) -> Movie | None:
+        """
+        Get a movie from the movies table in the database
+        :param movie_id:
+        :return:
+        """
+        with self.SessionFactory() as session:
+            movie = session.query(Movie).filter_by(id = movie_id).first()
+            return movie
 
 def main():
     data_manager = SQliteDataManager("sqlite:///movie_app.db")
@@ -213,7 +258,7 @@ def main():
 
         # Associate movies with users and assign ratings
         print(f"user1:{user1}, movie1:{movie1}")
-        data_manager.set_user_movies(user1.id, movie1.id, 8.9)
+        data_manager.set_user_movies(user1.id, movie1.id)
         print(data_manager.get_user_movies(user1.id))
         data_manager.set_user_movies(user1.id, movie2.id, 8.5)
         data_manager.set_user_movies(user2.id, movie2.id, 9.2)
@@ -227,8 +272,8 @@ def main():
         print("All movies:", session.query(Movie).all())
 
         # Example of updating a movie (use a new session)
-        updated_movie = data_manager.update_movie(movie1.id,
-                                                      {"name": "The Matrix Reloaded", "user_rating":
+        updated_movie = data_manager.update_user_movie(user1.id, movie1.id,
+                                                      {"user_rating":
                                                           7.2})
         print("Updated movie:", updated_movie)
 

@@ -1,5 +1,4 @@
-
-
+from django.contrib.messages import success
 from flask import Flask, render_template, request
 from datamanager.sqlite_data_manager import SQliteDataManager
 from data_models import User, Movie, UserMovie
@@ -33,16 +32,59 @@ def user_movies(user_id):
             if movie is None:
                 try:
                     movie = data_manager.set_movie(movie_title)
-                    session.add(movie)
-                    data_manager.set_user_movies(user_id=user_id, movie_id=movie.id, rating=movie.rating)
-                    session.commit()
+                    if movie is None:
+                        raise Exception("Movie not found")
+                    data_manager.set_user_movies(user_id=user_id, movie_id=movie.id)
                     user_movies_list = data_manager.get_user_movies(user_id)
-                    return render_template("user_movies.html", user_movies=user_movies_list,
-                    user=chosen_user, success=True)
+                    return render_template("user_movies.html",
+                                           user_movies=user_movies_list,
+                                           user=chosen_user, success=True)
                 except Exception as e:
                     session.rollback()
-                    return render_template("user_movies.html", user_movies=user_movies_list,
-                    user=chosen_user, success=False)
+                    return render_template("user_movies.html",
+                                           user_movies=user_movies_list,
+                                           user=chosen_user, success=False)
+            else:
+                if data_manager.get_user_movie(user_id, movie.id):
+                    return render_template("user_movies.html",
+                                           user_movies=data_manager.get_user_movies(user_id),
+                                           user=chosen_user, success=False)
+                try:
+                    data_manager.set_user_movies(user_id=user_id, movie_id=movie.id)
+                    user_movies_list = data_manager.get_user_movies(user_id)
+                    return render_template("user_movies.html",
+                                           user_movies=user_movies_list,
+                                           user=chosen_user, success=True)
+                except Exception as e:
+                    session.rollback()
+                    return render_template("user_movies.html",
+                                           user_movies=user_movies_list,
+                                           user=chosen_user, success=False)
+
+
+@app.route('/users/<user_id>/<movie_id>', methods=["GET", "POST"])
+def update_user_movie(user_id, movie_id):
+    if request.method == "GET":
+        chosen_user = data_manager.get_user(user_id)
+        movie = data_manager.get_movie(movie_id)
+        user_movie = data_manager.get_user_movie(user_id, movie_id)
+        return render_template("user_movie.html", user_movie=user_movie,
+                               user=chosen_user, movie=movie)
+    elif request.method == "POST":
+        chosen_user = data_manager.get_user(user_id)
+        movie = data_manager.get_movie(movie_id)
+        user_movie = data_manager.get_user_movie(user_id, movie_id)
+        user_rating = request.form["user_rating"]
+        try:
+            data_manager.update_user_movie(user_id=user_id, movie_id=movie_id,
+                                           update_data={"user_rating": user_rating})
+            new_user_movie = data_manager.get_user_movie(user_id, movie_id)
+            return render_template("user_movie.html", user_movie=new_user_movie,
+                                   user=chosen_user, movie=movie, success=True)
+        except Exception as e:
+            return render_template("user_movie.html", user_movie=user_movie,
+                                   user=chosen_user, movie=movie, success=False)
+
 
 
 @app.route('/users/new', methods=["GET", "POST"])
@@ -70,10 +112,10 @@ def new_movie():
         title = request.form["name"]
         movie = data_manager.set_movie(title)
         if movie:
-            success = True
+            movie_added = True
         else:
-            success = False
-        return render_template("new_movie.html", movie=movie, success=success)
+            movie_added = False
+        return render_template("new_movie.html", movie=movie, success=movie_added)
 
 @app.route('/movies', methods=["GET", "POST"])
 def list_movies():
@@ -82,11 +124,27 @@ def list_movies():
         return render_template("movies.html",movies=movies)
     elif request.method == "POST":
         movie_id = request.form["movie_id"]
-        data_manager.delete_movie(movie_id)
+        deleted = data_manager.delete_movie(int(movie_id))
         movies = data_manager.movies
-        return render_template("movies.html",movies=movies)
+        return render_template("movies.html", movies=movies, success=deleted)
+
+@app.route('/users/<user_id>/delete/<movie_id>', methods=["GET", "POST"])
+def delete_user_movie(user_id, movie_id):
+    if request.method == "GET":
+        chosen_user = data_manager.get_user(user_id)
+        movie = data_manager.get_movie(movie_id)
+        user_movie = data_manager.get_user_movie(user_id, movie_id)
+        return render_template("user_movie.html", user_movie=user_movie,
+                               user=chosen_user, movie=movie)
+    elif request.method == "POST":
+        deleted = data_manager.delete_user_movie(user_id, movie_id)
+        chosen_user = data_manager.get_user(user_id)
+        movie = data_manager.get_movie(movie_id)
+        user_movies_list = data_manager.get_user_movies(user_id)
+        return render_template("user_movies.html", user_movies=user_movies_list,
+                               user=chosen_user, movie=movie, movie_deleted=deleted)
 
 if __name__ == "__main__":
 
-    app.run(debug=True, host="127.0.0.1",port=5000)
+    app.run(debug=True,port=5000)
 

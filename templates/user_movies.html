@@ -1,18 +1,22 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>{{user.name}} - Movie List</title>
-</head>
-<body>
-    <h1>{{user.name}} - Movie List</h1>
+{% extends "base.html" %}
+{% block title %} {{ user.name }} - Movie List{% endblock %}
+{% block content %}
+    <h1 class="title" style="text-align: center;">{{user.name}} - Movie List</h1>
 
     <header>
         {% if success == True %}
             <p>Movie added successfully!</p>
         {% elif success == False %}
-            <p>Failed to add movie. Please try again.</p>
+            <p>Failed to add movie. Either movie already associated with user or movie does not
+                exist. <br>
+                Please try again!</p>
         {% elif success == None %}
+        {% endif %}
+        {% if movie_deleted == True %}
+            <p>Movie deleted successfully!</p>
+        {% elif movie_deleted == False %}
+            <p>Failed to delete movie. Please try again.</p>
+        {% elif movie_deleted == None %}
         {% endif %}
         <form action="/users/{{user.id}}" method="POST">
             <label for="name">Name:</label>
@@ -23,13 +27,20 @@
         {% for movie in user_movies %}
             <img height="200" alt="{{ movie.name }}" src="{{ movie.poster }}">
             <ul><li>{{ movie.name }} ({{ movie.year }})</li>
+                <form action="/users/{{user.id}}/delete/{{movie.id}}"
+                                                 method="POST">
+                <button type="submit" id = "movie_id" name = "movie_id" value="{{ movie.id }}">
+                Delete</button></form>
             <li>Director: {{ movie.director }}</li>
-            <li>Rating: <input type="number" id="rating" name="rating" required> {{ movie.rating }} <form action="/users/{{user.id}}/{{movie.id}}"
-                                                 method="UPDATE"><button type="submit">Update
-            </button></form></li>
+            <li>Rating: {{ movie.rating }} </li>
+            <li>User Rating: {{ movie.user_rating }}</li>
+            <li><form action="/users/{{user.id}}/{{movie.id}}"
+                                                 method="POST">
+                <label for="user_rating">New User Rating:</label>
+                <input type="text" id="user_rating" name="user_rating" required>
+                <button type="submit">Update</button></form></li>
             <hr>
                 </ul>
         {% endfor %}
 
-</body>
-</html>
+{% endblock %}

@@ -1,14 +1,9 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Movie - WebApp</title>
-</head>
-<body>
+{% extends "base.html" %}
+    {% block title %}Movie - WebApp{% endblock %}
+    {% block content %}
     <h1>Welcome to the Movie Web App</h1>
     <ul>
       <li><a href="/users" methods="GET">Users</a></li>
       <li><a href="/movies" methods="GET">Movies</a></li>
     </ul>
-</body>
-</html>
+    {% endblock %}

@@ -1,10 +1,6 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Users - MovieWeb App</title>
-</head>
-<body>
+{% extends 'base.html' %}
+{% block title %}Users - MovieWeb{% endblock %}
+{% block content %}
 <h1>Users</h1>
 <ul><a href="/users/new" methods="GET">Add User</a></ul>
 <ul><a href="/" methods="GET">Home</a></ul>
@@ -14,6 +10,4 @@
 <li><a href="/users/{{user.id}}" methods="GET">{{user.name}}</a></li>
 {% endfor %}
 </ul>
-
-</body>
-</html>
+{% endblock %}

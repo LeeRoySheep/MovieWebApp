@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}{{user.name}} - Movie List{% endblock %}
+
+{% block content %}
+    <h1 class="title" style="text-align: center;">{{user.name}} - Movie List</h1>
+
+    <header>
+        {% if success == True %}
+            <p>Movie updated successfully!</p>
+        {% elif success == False %}
+            <p>Failed to update movie. <br>
+                Please try again!</p>
+        {% elif success == None %}
+        {% endif %}
+
+    </header>
+
+            <img height="200" alt="{{ movie.name }}" src="{{ movie.poster }}">
+            <ul><li>{{ movie.name }} ({{ movie.year }})</li>
+            <li>Director: {{ movie.director }}</li>
+            <li>Rating: {{ movie.rating }} </li>
+            <li>User Rating: {{ user_movie.user_rating }}</li>
+            <li><form action="/users/{{user.id}}/{{movie.id}}"
+                                                 method="POST">
+                <label for="user_rating">New User Rating:</label>
+                <input type="text" id="user_rating" name="user_rating" required>
+                <button type="submit">Update</button></form></li>
+            <hr>
+            </ul>
+
+{% endblock %}
