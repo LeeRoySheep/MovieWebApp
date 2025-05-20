@@ -16,9 +16,10 @@ class OMDBClient:
     def get_movie(self, title: str) -> dict | None:
         url = self.BASE_URL + "&t=" + title
         response = requests.get(url)
-        if response.status_code == 200:
+        if response.status_code == 200 and response.json()["Response"] == "True":
             new_movie = {"name": response.json()["Title"], "director": response.json()["Director"],
                          "year": response.json()["Year"], "poster": response.json()["Poster"],
-                         "rating": response.json()["imdbRating"]}
+                         "country": response.json()["Country"], "genre": response.json()["Genre"],
+                         "plot": response.json()["Plot"], "rating": response.json()["imdbRating"]}
             return new_movie
         return None

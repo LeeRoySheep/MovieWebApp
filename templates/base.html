@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="X-UA-Compatible" content="IE=edge">
-
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
 </head>
 <body>
 <header class="topnav">
-  <a class="active" href="/">Home</a>
-  <a href="/users">Users</a>
-  <a href="/movies">Movies</a>
-  <a href="/users/new">New User</a>
-  <a href="/movies/new">New Movie</a>
-
+  {% set path = request.path %}
+  <a href="/" class="{% if path == '/' %}active{% endif %}">Home</a>
+  <a href="/users" class="{% if path.startswith('/users') and not path.endswith('/new') %}active{% endif %}">Users</a>
+  <a href="/movies" class="{% if path.startswith('/movies') and not path.endswith('/new') %}active{% endif %}">Movies</a>
+  <a href="/users/new" class="{% if path == '/users/new' %}active{% endif %}">New User</a>
+  <a href="/movies/new" class="{% if path == '/movies/new' %}active{% endif %}">New Movie</a>
 </header>
+
+<main>
     {% block content %}{% endblock %}
+</main>
 </body>
 </html>

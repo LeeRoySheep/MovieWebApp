@@ -1,0 +1,18 @@
+{% extends 'base.html' %}
+{% block title %}Movie Details{% endblock %}
+{% block content %}
+<h1>{{movie.name}} Details</h1>
+    <img height="200" alt="{{ movie.name }}" src="{{ movie.poster }}">
+    <ul>
+        <li>{{ movie.name }} - ({{ movie.year }})</li>
+        <li>Director: {{ movie.director }}</li>
+        <li>Rating: {{ movie.rating }} </li>
+        <li>Plot: {{ movie.plot }}</li>
+        <li>Country: {{ movie.country }}</li>
+        <li>Genre: {{ movie.genre }}</li>
+        <form action="/movies" method="post">
+        <button type="submit" id = "movie_id" name = "movie_id" value="{{ movie.id }}">
+        Delete</button></form>
+        <button type="submit"><a href="/movies">Back</a></button>
+    </ul>
+{% endblock %}

@@ -1,9 +1,16 @@
 {% extends "base.html" %}
     {% block title %}Movie - WebApp{% endblock %}
     {% block content %}
-    <h1>Welcome to the Movie Web App</h1>
-    <ul>
-      <li><a href="/users" methods="GET">Users</a></li>
-      <li><a href="/movies" methods="GET">Movies</a></li>
-    </ul>
+    <h1 class="home_title">Welcome to the Movie Web App</h1>
+    <section class="home_section">
+        <h2>Features</h2>
+        <ul>
+            <li>View all movies</li>
+            <li>View a single movie</li>
+            <li>View all users</li>
+            <li>View a single user</li>
+            <li>View all user's movies list</li>
+            <li>View a single user's movie</li>
+        </ul>
+    </section>
     {% endblock %}

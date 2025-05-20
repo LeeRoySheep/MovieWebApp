@@ -1,22 +1,31 @@
 {% extends 'base.html' %}
 {% block title %}Movies List{% endblock %}
+
 {% block content %}
-<h1>Movies List</h1>
-    {% if success == True %}
-        <p>Movie deleted successfully!</p>
-    {% elif success == False %}
-        <p>Failed to delete movie. Please try again.</p>
-    {% elif success == None %}
+<h1 class="title">Movies List</h1>
+
+<div class="status-message">
+    {% if success is not none %}
+        <p>{{ 'Movie deleted successfully!' if success else 'Failed to delete movie. Please try again.' }}</p>
     {% endif %}
+</div>
 
+<div class="movie-list">
+  <div class="css-carousel" tabindex="0" aria-label="Movies carousel">
     {% for movie in movies %}
-    <img height="200" alt="{{ movie.name }}" src="{{ movie.poster }}">
-    <ul>
-        <li><a href="/movies/{{ movie.id }}">{{ movie.name }} ({{ movie.year }})</a></li>
-        <form action="/movies" method="post">
-        <button type="submit" id = "movie_id" name = "movie_id" value="{{ movie.id }}">
-        Delete</button></form>
-    </ul>
+      <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ movies|length }}">
+        <img src="{{ movie.poster }}" alt="{{ movie.name }}" height="200" />
+        <ul>
+          <li><a href="/movies/{{ movie.id }}">{{ movie.name }} ({{ movie.year }})</a></li>
+          <li>
+            <form action="/movies" method="post">
+              <button type="submit" id="movie_id" name="movie_id" value="{{ movie.id }}">Delete</button>
+            </form>
+          </li>
+        </ul>
+      </div>
     {% endfor %}
-
+  </div>
+  <p class="scroll-instruction">Drag or scroll horizontally with your mouse or trackpad to browse movies.</p>
+</div>
 {% endblock %}

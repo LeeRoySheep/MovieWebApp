@@ -3,9 +3,10 @@
 {% block content %}
     <h1>Add new Movie</h1>
     {% if success == True %}
-        <p>Movie: {{ movie.name }} added successfully!</p>
+        <p>Movie: {{ movie_name }} added successfully!</p>
     {% elif success == False %}
-        <p>Failed to add movie. Please try again.</p>
+        <p>Failed to add movie. {{ error }}. <br>
+            Please try again.</p>
     {% elif success == None %}
     {% endif %}
     <form action="/movies/new" method="POST">

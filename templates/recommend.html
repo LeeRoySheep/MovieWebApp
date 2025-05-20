@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+{% block title %}{{user.name}} - Movie Recommendation{% endblock %}
+{% block content %}
+    <h1 class="title" style="text-align: center;">{{user.name}} - Movie Recommendation</h1>
+
+    <img height="200" alt="{{ movie.title }}" src="{{ movie.poster }}">
+            <ul><li>{{ movie.title }} ({{ movie.year }})</li>
+            <li>Director: {{ movie.director }}</li>
+            <li>Imdb: {{ movie.imdb }} </li>
+              <li>Plot: {{ movie.plot }}</li>
+              <li>Country: {{ movie.country }}</li>
+              <li>Genre: {{ movie.genre }}</li>
+              <li>Reasoning: {{ reasoning }}</li>
+            </ul>
+            <button type="submit" class="back_button"><a href="/users/{{user.id}}">Back</a></button>
+            <form action="/users/{{user.id}}" method="POST">
+            <button type="submit" id = "name" name = "name" value="{{ movie.title }}">
+                Add to {{user.name}} Movies List</button>
+            </form>
+            <form action="/users/{{user.id}}/recommend_movie" method="POST">
+            <button type="submit">Recommend different Movie</button>
+            </form>
+
+{% endblock %}

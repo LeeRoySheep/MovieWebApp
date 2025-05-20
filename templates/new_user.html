@@ -5,7 +5,8 @@
     {% if success == True %}
         <p>User added successfully!</p>
     {% elif success == False %}
-        <p>Failed to add user. Please try again.</p>
+        <p>Failed to add user.{{ error }}. <br>
+            Please try again.</p>
     {% elif success == None %}
     {% endif %}
     <form action="/users/new" method="POST">

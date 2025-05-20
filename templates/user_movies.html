@@ -1,46 +1,59 @@
 {% extends "base.html" %}
-{% block title %} {{ user.name }} - Movie List{% endblock %}
+{% block title %}{{ user.name }} - Movie List{% endblock %}
+
 {% block content %}
-    <h1 class="title" style="text-align: center;">{{user.name}} - Movie List</h1>
+<h1 class="title">{{ user.name }} - Movie List</h1>
 
-    <header>
-        {% if success == True %}
-            <p>Movie added successfully!</p>
-        {% elif success == False %}
-            <p>Failed to add movie. Either movie already associated with user or movie does not
-                exist. <br>
-                Please try again!</p>
-        {% elif success == None %}
-        {% endif %}
-        {% if movie_deleted == True %}
-            <p>Movie deleted successfully!</p>
-        {% elif movie_deleted == False %}
-            <p>Failed to delete movie. Please try again.</p>
-        {% elif movie_deleted == None %}
-        {% endif %}
-        <form action="/users/{{user.id}}" method="POST">
-            <label for="name">Name:</label>
-            <input type="text" id="name" name="name" required>
-            <button type="submit">Add Movie</button>
-        </form>
-    </header>
-        {% for movie in user_movies %}
-            <img height="200" alt="{{ movie.name }}" src="{{ movie.poster }}">
-            <ul><li>{{ movie.name }} ({{ movie.year }})</li>
-                <form action="/users/{{user.id}}/delete/{{movie.id}}"
-                                                 method="POST">
-                <button type="submit" id = "movie_id" name = "movie_id" value="{{ movie.id }}">
-                Delete</button></form>
-            <li>Director: {{ movie.director }}</li>
-            <li>Rating: {{ movie.rating }} </li>
-            <li>User Rating: {{ movie.user_rating }}</li>
-            <li><form action="/users/{{user.id}}/{{movie.id}}"
-                                                 method="POST">
-                <label for="user_rating">New User Rating:</label>
-                <input type="text" id="user_rating" name="user_rating" required>
-                <button type="submit">Update</button></form></li>
-            <hr>
-                </ul>
-        {% endfor %}
+<div class="status-message">
+    {% if success %}
+        <p>{{ 'Movie added successfully!'
+            if success else 'Failed to add movie. ' ~ error ~ '. Please try again!' }}</p>
+    {% endif %}
+    {% if movie_deleted %}
+        <p>{{ 'Movie deleted successfully!'
+            if movie_deleted else 'Failed to delete movie. Please try again.' }}</p>
+    {% endif %}
+</div>
 
+<div class="actions">
+    <form action="/users/{{ user.id }}/recommend_movie" method="POST">
+        <button type="submit">Recommend Movie</button>
+    </form>
+
+    <form action="/users/{{ user.id }}" method="POST">
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required>
+        <button type="submit">Add Movie</button>
+    </form>
+</div>
+
+<div class="movie-list">
+  <div class="css-carousel" tabindex="0" aria-label="User's movies carousel">
+    {% for movie in user_movies %}
+      <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ user_movies|length }}">
+        <img src="{{ movie.poster }}" alt="{{ movie.name }}" height="200">
+        <ul>
+          <li><a href="/users/{{ user.id }}/{{ movie.id }}">{{ movie.name }} ({{ movie.year }})</a></li>
+          <li>Director: {{ movie.director }}</li>
+          <li>Rating: {{ movie.rating }}</li>
+          <li>User Rating: {{ movie.user_rating }}</li>
+          <li>
+            <form action="/users/{{ user.id }}/{{ movie.id }}" method="POST">
+              <label for="user_rating_{{ movie.id }}">New User Rating:</label>
+              <input type="text" id="user_rating_{{ movie.id }}" name="user_rating" min="0.1" max="10.0" step="0.1" required>
+              <button type="submit">Update</button>
+            </form>
+          </li>
+          <li>
+            <form action="/users/{{ user.id }}/delete/{{ movie.id }}" method="POST">
+              <button type="submit" name="movie_id" value="{{ movie.id }}">Delete</button>
+            </form>
+          </li>
+        </ul>
+      </div>
+    {% endfor %}
+  </div>
+  <p class="scroll-instruction">Drag or scroll horizontally with pressing shift and
+      using your mouse or trackpad to browse movies.</p>
+</div>
 {% endblock %}

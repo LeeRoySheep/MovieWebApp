@@ -39,6 +39,7 @@ class SQliteDataManager(DataManagerInterface):
         finally:
             session.close()
 
+
     @property
     def users(self) -> list[Type[User]]:
         """
@@ -67,6 +68,7 @@ class SQliteDataManager(DataManagerInterface):
         with self.SessionFactory() as session:
             session.add(user)
             session.commit()
+
 
     @property
     def movies(self) -> list[Type[Movie]]:
@@ -131,8 +133,13 @@ class SQliteDataManager(DataManagerInterface):
                             "director": movie.director,
                             "year": movie.year,
                             "poster": movie.poster,
+                            "genre": movie.genre,
+                            "country": movie.country,
+                            "plot": movie.plot,
                             "rating": movie.rating,
-                            "user_rating": association.user_rating
+                            "user_rating": association.user_rating,
+                            "user_comment": association.user_comment if association.user_comment
+                            else None
                         })
                 return movies_with_ratings
             return []
@@ -149,8 +156,12 @@ class SQliteDataManager(DataManagerInterface):
                     "director": movie.director,
                     "year": movie.year,
                     "poster": movie.poster,
+                    "genre": movie.genre,
+                    "country": movie.country,
+                    "plot": movie.plot,
                     "rating": movie.rating,
                     "user_rating": user_movie.user_rating,
+                    "user_comment": user_movie.user_comment if user_movie.user_comment else None
                 }
             return {}
 
@@ -176,7 +187,8 @@ class SQliteDataManager(DataManagerInterface):
         with self.SessionFactory() as session:
             movie = session.query(Movie).filter_by(id=movie_id).first()
             if movie:
-                session.query(UserMovie).filter_by(user_id=user_id, movie_id=movie_id).update(update_data)
+                session.query(UserMovie).filter_by(user_id=user_id,
+                                                   movie_id=movie_id).update(update_data)
                 session.commit()
                 return {
                     "id": movie.id,
@@ -184,7 +196,14 @@ class SQliteDataManager(DataManagerInterface):
                     "director": movie.director,
                     "year": movie.year,
                     "poster": movie.poster,
-                    "user_rating": update_data["user_rating"]
+                    "genre": movie.genre,
+                    "country": movie.country,
+                    "plot": movie.plot,
+                    "rating": movie.rating,
+                    "user_rating": update_data["user_rating"] if "user_rating" in update_data
+                    else 0.0,
+                    "user_comment": update_data["user_comment"] if "user_comment" in update_data
+                    else None
                 }
             return None
 
