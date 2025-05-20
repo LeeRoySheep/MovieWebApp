@@ -6,7 +6,9 @@
 
 <div class="status-message">
     {% if success%}
-        <p>{{ 'Movie deleted successfully!' if success else 'Failed to delete movie. Please try again.' }}</p>
+        <p>Movie deleted successfully!</p>
+    {% elif success == False %}
+        <p>Failed to delete movie. Please try again.</p>
     {% endif %}
 </div>
 
