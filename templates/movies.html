@@ -5,7 +5,7 @@
 <h1 class="title">Movies List</h1>
 
 <div class="status-message">
-    {% if success is not none %}
+    {% if success%}
         <p>{{ 'Movie deleted successfully!' if success else 'Failed to delete movie. Please try again.' }}</p>
     {% endif %}
 </div>
