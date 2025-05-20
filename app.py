@@ -198,7 +198,11 @@ def recommendation(user_id):
         data_string = ""
         for movie in data_manager.get_user_movies(user_id):
             data_string += f"Title: {movie["name"]} User Rating: {movie['user_rating']},"
-        recommend = AIRequest().ai_request(data_string)
+        if "name" in request.form:
+            recommend = AIRequest().ai_excluded_movie_request(data_string,request.form[
+                "name"])
+        else:
+            recommend = AIRequest().ai_request(data_string)
         poster = OMDBClient().get_movie(recommend["movie"]["title"])
         recommend["movie"]["poster"] = poster["poster"]
         recommend["movie"]["imdb"] = poster["rating"]

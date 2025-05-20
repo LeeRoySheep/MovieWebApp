@@ -18,7 +18,7 @@
                 Add to {{user.name}} Movies List</button>
             </form>
             <form action="/users/{{user.id}}/recommend_movie" method="POST">
-            <button type="submit">Recommend different Movie</button>
+            <button type="submit" id = "name" name = "name" value="{{ movie.title }}">Recommend different Movie</button>
             </form>
 
 {% endblock %}

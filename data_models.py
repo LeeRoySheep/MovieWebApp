@@ -1,7 +1,4 @@
-from email.policy import default
-
-from flask_sqlalchemy.session import Session
-from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey, Table
+from sqlalchemy import create_engine, Column, Integer, String, Float, ForeignKey
 from sqlalchemy.orm import relationship, sessionmaker, declarative_base
 
 # Define the database connection string.  Use an in-memory database for testing.
