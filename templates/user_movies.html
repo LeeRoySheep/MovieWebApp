@@ -35,9 +35,10 @@
   <div class="css-carousel" tabindex="0" aria-label="User's movies carousel">
     {% for movie in user_movies %}
       <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ user_movies|length }}">
-        <img src="{{ movie.poster }}" alt="{{ movie.name }}" height="200">
+        <a href="/users/{{ user.id }}/{{ movie.id }}">
+          <img src="{{ movie.poster }}" alt="{{ movie.name }}" height="200"></a>
         <ul>
-          <li><a href="/users/{{ user.id }}/{{ movie.id }}">{{ movie.name }} ({{ movie.year }})</a></li>
+          <li>{{ movie.name }} ({{ movie.year }})</li>
           <li>Director: {{ movie.director }}</li>
           <li>Rating: {{ movie.rating }}</li>
           <li>User Rating: {{ movie.user_rating }}</li>

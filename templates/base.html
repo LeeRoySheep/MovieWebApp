@@ -4,9 +4,13 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{% block title %}{% endblock %}</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}" />
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}" />
+    <script src="{{ url_for('static', filename='action.js') }}"></script>
 </head>
 <body>
+<canvas id="pixelCanvas"></canvas>
+
+<main class="main-content-container">
 <header class="topnav">
   {% set path = request.path %}
   <a href="/" class="{% if path == '/' %}active{% endif %}">Home</a>
@@ -15,8 +19,6 @@
   <a href="/users/new" class="{% if path == '/users/new' %}active{% endif %}">New User</a>
   <a href="/movies/new" class="{% if path == '/movies/new' %}active{% endif %}">New Movie</a>
 </header>
-
-<main>
     {% block content %}{% endblock %}
 </main>
 </body>

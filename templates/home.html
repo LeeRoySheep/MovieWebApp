@@ -2,15 +2,22 @@
     {% block title %}Movie - WebApp{% endblock %}
     {% block content %}
     <h1 class="home_title">Welcome to the Movie Web App</h1>
-    <section class="home_section">
-        <h2>Features</h2>
-        <ul>
-            <li>View all movies</li>
+    <section class="content-container">
+        <h2 class="content-title">Features</h2>
+        <img src="/static/homepic.jpg" alt="Movie Image" class="content-image">
+
+        <p class="content-paragraph">
+            This Movie Web App has the following features:
+        </p>
+        <ul class="content-paragraph">
+            <li>View all <a href="/movies">movies</a></li>
             <li>View a single movie</li>
-            <li>View all users</li>
+            <li>View all <a href="/users">users</a></li>
             <li>View a single user</li>
             <li>View all user's movies list</li>
             <li>View a single user's movie</li>
         </ul>
     </section>
+
+
     {% endblock %}

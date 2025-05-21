@@ -16,9 +16,10 @@
   <div class="css-carousel" tabindex="0" aria-label="Movies carousel">
     {% for movie in movies %}
       <div class="carousel-item" role="group" aria-roledescription="slide" aria-label="{{ loop.index }} of {{ movies|length }}">
-        <img src="{{ movie.poster }}" alt="{{ movie.name }}" height="200" />
+          <a href="/movies/{{ movie.id }}">
+        <img src="{{ movie.poster }}" alt="{{ movie.name }}" height="200"></a>
         <ul>
-          <li><a href="/movies/{{ movie.id }}">{{ movie.name }} ({{ movie.year }})</a></li>
+          <li>{{ movie.name }} ({{ movie.year }})</a></li>
           <li>
             <form action="/movies" method="post">
               <button type="submit" id="movie_id" name="movie_id" value="{{ movie.id }}">Delete</button>

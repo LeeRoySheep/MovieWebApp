@@ -1,0 +1,317 @@
+body {
+    font-family: "Inter", sans-serif;
+    margin: 0;
+    overflow-x: hidden; /* Prevent horizontal scrollbar on body */
+    overflow-y: auto; /* Enable vertical scrolling for the entire page */
+    display: flex; /* Use flexbox to center canvas content conceptually */
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background-color: #000; /* Fallback for body background */
+}
+
+canvas {
+    display: block; /* Remove extra space below canvas */
+    position: fixed; /* Use fixed to keep it in viewport regardless of scroll */
+    top: 0;
+    left: 0;
+    z-index: -1; /* Place the canvas behind other content */
+    width: 100%; /* Ensure canvas covers full width */
+    height: 100%; /* Ensure canvas covers full height */
+}
+
+/* Styles for the new main content container */
+.main-content-container {
+    position: relative; /* Ensure content is positioned above the canvas */
+    z-index: 1; /* Bring content to the front */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    background-color: rgba(0, 0, 0, 0.2); /* Semi-transparent dark background for contrast */
+    border-radius: 12px; /* Rounded corners */
+    padding: 30px; /* Padding inside the container */
+    margin: 20px auto; /* Changed margin to auto for horizontal centering */
+    width: 90%; /* Make it more fluid on smaller screens */
+    max-width: 700px; /* Limit width for readability on larger screens */
+    box-shadow: 0 8px 16px rgba(0,0,0,0.4); /* More prominent shadow */
+    color: white; /* Default text color for content */
+    text-align: center;
+    backdrop-filter: blur(3px); /* Optional: subtle blur effect for content behind */
+    box-sizing: border-box; /* Include padding in the element's total width */
+}
+
+.content-title {
+    font-size: 2.5rem; /* text-4xl equivalent */
+    font-weight: 700; /* font-bold equivalent */
+    margin-bottom: 1rem;
+    color: #E0E0E0; /* Slightly off-white for title */
+}
+
+.content-paragraph {
+    font-size: 1.1rem; /* text-lg equivalent */
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: #F0F0F0; /* Slightly off-white for paragraph */
+}
+
+.content-image {
+    max-width: 200px; /* Ensure image is responsive */
+    height: auto;
+    border-radius: 8px;
+    margin-top: 1.5rem;
+    margin-bottom: 1.5rem;
+    box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+}
+
+/* Navigation */
+.topnav {
+  background-color: black;
+  display: flex;
+  gap: 15px;
+  padding: 12px 20px;
+  border-bottom: 2px solid darkred;
+  justify-content: center;
+}
+
+.topnav a {
+  color: darkgreen;
+  text-decoration: none;
+  padding: 8px 14px;
+  border-radius: 8px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+.topnav a.active,
+.topnav a:hover {
+  background-color: darkgreen;
+  color: darkred;
+}
+
+/* Title styling */
+h1.title {
+  text-align: center;
+  margin: 20px 0;
+  color: darkgreen;
+}
+
+/* Status message */
+.status-message p {
+  text-align: center;
+  font-weight: bold;
+  color: darkgreen;
+  margin-bottom: 20px;
+}
+
+/* Carousel container with horizontal scroll */
+.css-carousel {
+  display: flex;
+  overflow-x: auto; /* Enable horizontal scrolling */
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+  padding-bottom: 12px; /* Keep bottom padding for scrollbar */
+  scrollbar-width: thin;
+  scrollbar-color: darkred black;
+  border: 2px solid darkred; /* Full border for clearer limits */
+  scroll-behavior: smooth;
+  color: darkgreen;
+  width: 100%; /* Ensure it takes full width of its parent */
+  box-sizing: border-box; /* Ensure padding is included in width */
+  gap: 20px; /* Space between carousel items */
+
+  /* New: Dynamic scroll-padding for consistent edge snapping */
+  /* This ensures the item snaps to the start, but we add padding to the scroll container itself */
+  /* The padding is calculated to center the item based on its flex-basis */
+  scroll-padding-inline: calc(50% - (250px / 2)); /* 50% of carousel width - half of default item width */
+}
+
+/* Scrollbar styling */
+.css-carousel::-webkit-scrollbar {
+  height: 8px;
+}
+
+.css-carousel::-webkit-scrollbar-track {
+  background: black;
+}
+
+.css-carousel::-webkit-scrollbar-thumb {
+  background-color: darkred;
+  border-radius: 10px;
+  border: 2px solid black;
+}
+
+/* Scroll instruction text */
+.scroll-instruction {
+  color: darkgreen;
+  font-size: 0.9rem;
+  text-align: center;
+  margin-top: 6px;
+  font-style: italic;
+  user-select: none;
+}
+
+/* Individual movie card */
+.carousel-item {
+  flex: 0 0 250px; /* Fixed width for items, no shrinking/growing by default */
+  scroll-snap-align: center; /* Center the item when snapped */
+  background-color: #111;
+  border: 1px solid darkgreen;
+  border-radius: 12px;
+  padding: 15px;
+  color: darkgreen;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  transition: transform 0.3s ease;
+}
+
+/* Slight scale on hover */
+.carousel-item:hover {
+  transform: scale(1.05);
+  border-color: darkred;
+}
+
+/* Movie image */
+.carousel-item img {
+  border-radius: 10px;
+  max-width: 100%;
+  height: auto; /* Ensures aspect ratio is maintained */
+  margin-bottom: 10px;
+  object-fit: contain; /* Ensures entire image is visible without distortion */
+}
+
+/* Movie info list */
+.carousel-item ul {
+  list-style: none;
+  padding-left: 0;
+  width: 100%;
+  margin: 0;
+  color: darkgreen;
+}
+
+.carousel-item ul li {
+  margin: 5px 0;
+  font-size: 0.9rem;
+  color: darkgreen;
+}
+
+.carousel-item ul li a {
+  color: darkgreen;
+  text-decoration: none;
+  transition: color 0.3s ease;
+}
+
+.carousel-item ul li a:hover {
+  color: darkred;
+}
+
+/* Delete button styling */
+button,
+.back_button a{
+  background-color: darkred;
+  color: darkgreen;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  cursor: pointer;
+  font-size: 1rem;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+button:hover,
+.back_button a:hover {
+  background-color: darkgreen;
+  color: darkred;
+}
+
+.actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px; /* space between forms */
+  justify-content: center;
+  margin-bottom: 20px;
+}
+
+.action-form {
+  background-color: #1a0000; /* very dark red background */
+  padding: 15px;
+  border-radius: 12px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  min-width: 220px;
+  box-sizing: border-box;
+}
+
+.action-form label {
+  margin-bottom: 8px;
+  color: darkgreen;
+}
+
+.action-form input[type="text"] {
+  padding: 8px;
+  border-radius: 10px;
+  border: none;
+  margin-bottom: 12px;
+  width: 100%;
+  max-width: 200px;
+}
+
+.action-form button {
+  background-color: darkred;
+  color: darkgreen;
+  border: none;
+  padding: 10px 16px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: background-color 0.3s ease;
+  width: 100%;
+  max-width: 200px;
+}
+
+.action-form button:hover {
+  background-color: darkgreen;
+  color: black;
+}
+/* Responsive adjustments for smaller screens */
+@media (max-width: 768px) {
+    .main-content-container {
+        padding: 20px;
+        margin: 10px auto; /* Adjusted margin for centering */
+        width: calc(100% - 40px); /* Adjust width to account for 20px left/right margin */
+    }
+    .content-title {
+        font-size: 2rem;
+    }
+    .content-paragraph {
+        font-size: 1rem;
+    }
+    .carousel-item {
+        flex-basis: 80vp; /* Adjusted flex-basis for smaller screens */
+        padding: 10px;
+    }
+    .css-carousel {
+        scroll-padding-inline: calc(50% - (80vp / 2)); /* Adjust for smaller item size */
+    }
+}
+
+/* Responsive tweaks */
+@media (max-width: 600px) {
+  .carousel-item {
+    flex-basis: 180px; /* Adjusted flex-basis */
+    padding: 10px;
+  }
+  .css-carousel {
+        scroll-padding-inline: calc(50% - (180px / 2)); /* Adjust for smaller item size */
+    }
+}
+
+@media (max-width: 400px) {
+  .carousel-item {
+    flex-basis: 50vp; /* Adjusted flex-basis for very small screens */
+  }
+  .css-carousel {
+        scroll-padding-inline: calc(50% - (60vp/ 2)); /* Adjust for smallest item size */
+    }
+}
